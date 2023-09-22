@@ -2,10 +2,38 @@
 <html>
     <head>
         <title>gpl27</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="./snake.js"></script>
+        <style>
+            .container {
+                display: grid;
+                grid-template-columns: auto auto;
+                justify-content: center;
+                align-items: center;
+            }
+            #canvas {
+                background: url("./background.png");
+                background-size: cover;
+            }
+            img {
+                height: 75vh;
+                width: 75vh;
+            }
+        </style>
     </head>
-    <body>
-        <img src="./banner.png">
-        <p>Go <a href="https://enem.gpl27.dev">here</a>
-        if your studying for <a href="https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enem">ENEM</a></p>
+    <body class="container">
+        <div>
+            <img src="./banner.png">
+            <p>Go <a href="https://enem.gpl27.dev">here</a>
+            if your studying for <a href="https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enem">ENEM</a></p>
+            <p>Feel free to play snake game if bored</p>
+        </div>
+        <div>
+            <canvas id="canvas" width="320", height="320"></canvas>
+            <p>Press Space to Start</p>
+            <p>Press Esc to Pause/Unpause</p>
+            <p>Press Space to Play Again</p>
+        </div>
     </body>
 </html>
