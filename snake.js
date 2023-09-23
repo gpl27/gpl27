@@ -1,8 +1,13 @@
 /*!
  *  Snake Game
  *  gpl27
- *
- * 
+ * TODO:
+ * better graphics
+ *  add snake head
+ *  better apple drawing
+ *  dynamic background
+ *  better text
+ *      start/end/pause logo + onscreen instructions
  */
 const KEY_CODE = {
     ESC: 27,
@@ -13,16 +18,12 @@ const KEY_CODE = {
     D_ARROW: 40
 }
 
-const DEFAULT_SETTINGS = {
-    gameHeight: 0.75,
-    gridRows: 32,
-    gridCols: 32
-}
-
 class Snake {
-    static gameHeight = 0.75;
-    static gridRows = 32;
-    static gridCols = 32;
+    static DEFAULT_SETTINGS = {
+        gameHeight: 0.75,
+        gridRows: 32,
+        gridCols: 32
+    }
     static DEFAULT_STATE = {
         state: "START", // START / RUNNING / PAUSE / END
         score: 0,
@@ -35,7 +36,7 @@ class Snake {
         yPos: [0, 0, 0]
     }
 
-    constructor(canvas, settings) {
+    constructor(canvas, settings=Snake.DEFAULT_SETTINGS) {
         this.game = structuredClone(Snake.DEFAULT_STATE);
         this.snake = structuredClone(Snake.DEFAULT_SNAKE);
         this.gridRows = settings.gridRows;
@@ -52,6 +53,10 @@ class Snake {
             font: `${sqSize*3}px monospace`
         };
         this.canvas.ctx.textBaseline = "middle";
+        document.addEventListener("keydown", (e) => {
+            this.handleKey(e);
+        });
+        setInterval(() => { this.loop() }, 166); // 6 FPS
     }
 
     handleKey(event) {
@@ -203,11 +208,7 @@ class Snake {
 
 function main() {
     const canvas = document.getElementById("canvas");
-    const snake = new Snake(canvas, DEFAULT_SETTINGS);
-    document.addEventListener("keydown", (e) => {
-        snake.handleKey(e);
-    });
-    setInterval(() => { snake.loop() }, 166); // 5 FPS
+    const snake = new Snake(canvas);
 }
 
 document.addEventListener("DOMContentLoaded", main);
