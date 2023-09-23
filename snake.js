@@ -1,179 +1,260 @@
+/*!
+ *  Snake Game
+ *  gpl27
+ * TODO:
+ * better graphics
+ *  add snake head
+ *  better apple drawing
+ *  better text
+ *      start/end/pause logo + onscreen instructions
+ *  smoother snake movement
+ */
 class Snake {
-    static gridRows = 16;
-    static gridCols = 16;
-
-    constructor(canvas) {
-        this.state = "START" // START / RUNNING / PAUSE / END
-        this.xPos = [2, 1, 0];
-        this.yPos = [0, 0, 0];
-        this.xApples = [];
-        this.yApples = [];
-        this.score = 0;
-        this.dir = 'R';
-        this.ctx = canvas.getContext("2d");
-        this.ctx.textBaseline = "middle";
-        this.ctxWidth = canvas.width;
-        this.ctxHeight = canvas.height;
-        this.RecWidth = this.ctxWidth / Snake.gridCols;
-        this.RecHeight = this.ctxHeight / Snake.gridRows;
+    static DEFAULT_SETTINGS = {
+        gameHeight: 0.75,
+        gridRows: 32,
+        gridCols: 32
     }
+    static DEFAULT_STATE = {
+        state: "START", // START / RUNNING / PAUSE / END
+        score: 0,
+        xApples: [],
+        yApples: [],
+    }
+    static DEFAULT_SNAKE = {
+        prevDir: 'R',
+        dir: 'R',
+        xPos: [2, 1, 0],
+        yPos: [0, 0, 0]
+    }
+    static snakeColor = "#627bf1";
+    static appleColor = "#ca5329";
+
+    constructor(canvas, settings=Snake.DEFAULT_SETTINGS) {
+        this.game = structuredClone(Snake.DEFAULT_STATE);
+        this.snake = structuredClone(Snake.DEFAULT_SNAKE);
+        this.gridRows = settings.gridRows;
+        this.gridCols = settings.gridCols;
+        let vh = (window.innerHeight * settings.gameHeight) / this.gridRows;
+        canvas.height = Math.trunc(vh) * this.gridRows;
+        let sqSize = canvas.height / this.gridRows;
+        canvas.width = (sqSize) * this.gridCols;
+        this.canvas = {
+            ctx: canvas.getContext("2d"),
+            ctxWidth: canvas.width,
+            ctxHeight: canvas.height,
+            RecSize: sqSize,
+            font: `bold ${sqSize*2}px monospace`
+        };
+        console.log(this.canvas);
+        this.canvas.ctx.textBaseline = "middle";
+        // Draw background
+        for (let i = 0; i < this.gridRows/2; i++) {
+            for (let j = 0; j < this.gridCols/2; j++) {
+                const x = j * this.canvas.RecSize*2;
+                const y = i * this.canvas.RecSize*2;
+                this.canvas.ctx.fillStyle = ((i+j)%2)? '#a1c750' : '#add05a';
+                this.canvas.ctx.fillRect(x,
+                                         y,
+                                         this.canvas.RecSize*2,
+                                         this.canvas.RecSize*2);
+            }
+        }
+        canvas.style.backgroundImage = `url(${canvas.toDataURL()})`;
+        canvas.style.border = `${sqSize}px solid #578a34`;
+
+        document.addEventListener("keydown", (e) => {
+            this.handleKey(e);
+        });
+        setInterval(() => {
+            this.update();
+            this.draw();
+        }, 166); // 6 FPS
+    }
+
     handleKey(event) {
-        if (this.state === "START") {
-            if (event.keyCode == 32)
-                this.state = "RUNNING";
-        } else if (this.state === "RUNNING") {
-            switch (event.keyCode) {
-                case 37:
-                    if (this.dir != 'R')
-                        this.dir = 'L';
+        if (this.game.state === "START") {
+            if (event.key == ' ') this.game.state = "RUNNING";
+        } else if (this.game.state === "RUNNING") {
+            event.preventDefault();
+            switch (event.key) {
+                case 'KeyA':
+                case 'ArrowLeft':
+                    if (this.snake.prevDir != 'R') this.snake.dir = 'L';
                     break;
-                case 38:
-                    if (this.dir != 'D')
-                        this.dir = 'U';
+                case 'KeyW':
+                case 'ArrowUp':
+                    if (this.snake.prevDir != 'D') this.snake.dir = 'U';
                     break;
-                case 39:
-                    if (this.dir != 'L')
-                        this.dir = 'R';
+                case 'KeyD':
+                case 'ArrowRight':
+                    if (this.snake.prevDir != 'L') this.snake.dir = 'R';
                     break;
-                case 40:
-                    if (this.dir != 'U')
-                        this.dir = 'D';
+                case 'KeyS':
+                case 'ArrowDown':
+                    if (this.snake.prevDir != 'U') this.snake.dir = 'D';
                     break;
-                case 27: // <ESC>
-                    this.state = "PAUSE";
+                case 'Escape': // <ESC>
+                    this.game.state = "PAUSE";
                     break;
             }
-        } else if (this.state === "PAUSE") {
-            if (event.keyCode == 27)
-                this.state = "RUNNING"
-        } else if (this.state === "END") {
-            if (event.keyCode == 32) {
-                this.xPos = [2, 1, 0];
-                this.yPos = [0, 0, 0];
-                this.xApples = [];
-                this.yApples = [];
-                this.score = 0;
-                this.dir = 'R';
-                this.state = "RUNNING";
+        } else if (this.game.state === "PAUSE") {
+            if (event.key == 'Escape') this.game.state = "RUNNING";
+        } else if (this.game.state === "END") {
+            if (event.key == ' ') {
+                this.snake = structuredClone(Snake.DEFAULT_SNAKE);
+                this.game = structuredClone(Snake.DEFAULT_STATE);
             }
         }
     }
-    update() {
-        if (this.state === "START") {
 
-        } else if (this.state === "RUNNING") {
+    update() {
+        if (this.game.state === "RUNNING") {
+            this.snake.prevDir = this.snake.dir;
             // Update snake pos
-            for (let i = this.xPos.length - 1; i > 0; i--) {
-                this.xPos[i] = this.xPos[i - 1];
-                this.yPos[i] = this.yPos[i - 1];
+            for (let i = this.snake.xPos.length - 1; i > 0; i--) {
+                this.snake.xPos[i] = this.snake.xPos[i - 1];
+                this.snake.yPos[i] = this.snake.yPos[i - 1];
             }
-            switch (this.dir) {
+            switch (this.snake.dir) {
                 case 'L':
-                    this.xPos[0]--;
+                    this.snake.xPos[0]--;
                     break;
                 case 'U':
-                    this.yPos[0]--;
+                    this.snake.yPos[0]--;
                     break;
                 case 'R':
-                    this.xPos[0]++;
+                    this.snake.xPos[0]++;
                     break;
                 case 'D':
-                    this.yPos[0]++;
+                    this.snake.yPos[0]++;
                     break;
             }
-            // Collision
-            if (this.xPos[0] < 0 || this.xPos[0] >= Snake.gridCols) {
-                this.state = "END";
+            // Check Collisions
+            if (this.snake.xPos[0] < 0 ||
+                this.snake.xPos[0] >= this.gridCols) {
+                this.game.state = "END";
             }
-            if (this.yPos[0] < 0 || this.yPos[0] >= Snake.gridRows) {
-                this.state = "END";
+            if (this.snake.yPos[0] < 0 ||
+                this.snake.yPos[0] >= this.gridRows) {
+                this.game.state = "END";
             }
-            for (let i = 1; i < this.xPos.length; i++) {
-                if (this.xPos[0] == this.xPos[i] && this.yPos[0] == this.yPos[i]) {
-                    this.state = "END";
+            for (let i = 1; i < this.snake.xPos.length; i++) {
+                if (this.snake.xPos[0] == this.snake.xPos[i] &&
+                    this.snake.yPos[0] == this.snake.yPos[i]) {
+                    this.game.state = "END";
                 }
             }
-            for (let i = 0; i < this.xApples.length; i++) {
-                if (this.xPos[0] == this.xApples[i] && this.yPos[0] == this.yApples[i]) {
-                    this.xApples.splice(i, 1);
-                    this.yApples.splice(i, 1);
-                    this.xPos.splice(0, 0, this.xPos[0]);
-                    this.yPos.splice(0, 0, this.yPos[0]);
-                    this.score += 100;
+            for (let i = 0; i < this.game.xApples.length; i++) {
+                if (this.snake.xPos[0] == this.game.xApples[i] &&
+                    this.snake.yPos[0] == this.game.yApples[i]) {
+                    this.game.xApples.splice(i, 1);
+                    this.game.yApples.splice(i, 1);
+                    this.snake.xPos.splice(0, 0, this.snake.xPos[0]);
+                    this.snake.yPos.splice(0, 0, this.snake.yPos[0]);
+                    this.game.score += 100;
                 }
             }
             // Spawn apples
             if (Math.random() <= 0.10) {
-                let x = Math.floor(Math.random() * Snake.gridCols);
-                let y = Math.floor(Math.random() * Snake.gridRows);
-                this.xApples.push(x);
-                this.yApples.push(y);
+                let x = Math.floor(Math.random() * this.gridCols);
+                let y = Math.floor(Math.random() * this.gridRows);
+                this.game.xApples.push(x);
+                this.game.yApples.push(y);
             }
-        } else if (this.state === "PAUSE") {
-
-        } else if (this.state === "END") {
-
         }
     }
+
+    drawText(text, color, font=this.canvas.font) {
+        this.canvas.ctx.fillStyle = color;
+        this.canvas.ctx.font = font;
+        let textSize = this.canvas.ctx.measureText(text);
+        let gapX = (this.canvas.ctxWidth - textSize.width) / 2;
+        let gapY = this.canvas.ctxHeight / 2;
+        this.canvas.ctx.fillText(text, gapX, gapY);
+    }
+
+    drawApple(x, y) {
+        this.canvas.ctx.fillStyle = Snake.appleColor;
+        const xCenter = x + this.canvas.RecSize/2;
+        const yCenter = y + this.canvas.RecSize/2;
+        const radius = this.canvas.RecSize/2;
+        this.canvas.ctx.beginPath();
+        this.canvas.ctx.arc(xCenter, yCenter, radius, 0, 2 * Math.PI);
+        this.canvas.ctx.fill();
+    }
+
+    drawSegment(x, y) {
+        const cornerRadius = this.canvas.RecSize/4;
+        const width = this.canvas.RecSize;
+        const height = this.canvas.RecSize;
+        this.canvas.ctx.beginPath();
+        this.canvas.ctx.arc(x + cornerRadius,
+                            y + cornerRadius,
+                            cornerRadius,
+                            Math.PI,
+                            Math.PI * 1.5);
+        this.canvas.ctx.arc(x + width - cornerRadius,
+                            y + cornerRadius,
+                            cornerRadius,
+                            Math.PI * 1.5,
+                            Math.PI * 2);
+        this.canvas.ctx.arc(x + width - cornerRadius,
+                            y + height - cornerRadius,
+                            cornerRadius,
+                            0,
+                            Math.PI * 0.5);
+        this.canvas.ctx.arc(x + cornerRadius,
+                            y + height - cornerRadius,
+                            cornerRadius,
+                            Math.PI * 0.5,
+                            Math.PI);
+        this.canvas.ctx.closePath();
+        this.canvas.ctx.fillStyle = Snake.snakeColor;
+        this.canvas.ctx.fill();
+    }
+
     draw() {
-        this.ctx.clearRect(0, 0, this.ctxWidth, this.ctxHeight);
-        this.ctx.font = "32px monospace";
-        if (this.state === "START") {
-            let text = "Snake Game";
-            let textSize = this.ctx.measureText(text);
-            let gapX = (this.ctxWidth - textSize.width)/2;
-            let gapY = this.ctxHeight/2;
-            this.ctx.fillStyle = "black";
-            this.ctx.fillText(text, gapX, gapY);
-        } else if (this.state === "RUNNING" || this.state === "PAUSE" || this.state === "END") {
-            for (let i = 0; i < this.xPos.length; i++) {
-                this.ctx.fillStyle = (i % 2 == 0)? "yellow" : "orange";
-                let x = this.xPos[i]*this.RecWidth;
-                let y = this.yPos[i]*this.RecHeight;
-                this.ctx.fillRect(x, y, this.RecWidth, this.RecHeight);
+        this.canvas.ctx.clearRect(0,
+                                  0,
+                                  this.canvas.ctxWidth,
+                                  this.canvas.ctxHeight);
+        if (this.game.state === "START") {
+            this.drawText("SNAKE GAME", "white");
+        } else if (this.game.state === "RUNNING" ||
+                   this.game.state === "PAUSE" ||
+                   this.game.state === "END") {
+            // Draw Snake
+            for (let i = 0; i < this.snake.xPos.length; i++) {
+                let x = this.snake.xPos[i] * this.canvas.RecSize;
+                let y = this.snake.yPos[i] * this.canvas.RecSize;
+                this.drawSegment(x, y);
             }
-            this.ctx.fillStyle = "red";
-            for (let i = 0; i < this.xApples.length; i++) {
-                let x = this.xApples[i]*this.RecWidth;
-                let y = this.yApples[i]*this.RecHeight;
-                this.ctx.fillRect(x, y, this.RecWidth, this.RecHeight);
+            // Draw Apples
+            for (let i = 0; i < this.game.xApples.length; i++) {
+                let x = this.game.xApples[i] * this.canvas.RecSize;
+                let y = this.game.yApples[i] * this.canvas.RecSize;
+                this.drawApple(x, y);
             }
-            if (this.state === "PAUSE") {
-                let text = "PAUSED";
-                let textSize = this.ctx.measureText(text);
-                let gapX = (this.ctxWidth - textSize.width)/2;
-                let gapY = this.ctxHeight/2;
-                this.ctx.fillStyle = "black";
-                this.ctx.fillText(text, gapX, gapY);
+            if (this.game.state === "PAUSE") {
+                this.drawText("PAUSED", "white");
             }
-            if (this.state === "END") {
-                let text = "GAME OVER";
-                let textSize = this.ctx.measureText(text);
-                let gapX = (this.ctxWidth - textSize.width)/2;
-                let gapY = this.ctxHeight/2;
-                this.ctx.fillStyle = "black";
-                this.ctx.fillText(text, gapX, gapY);
+            if (this.game.state === "END") {
+                this.drawText("GAME OVER", "white");
             }
-            let text = `${this.score}`;
-            let textSize = this.ctx.measureText;
-            this.ctx.fillStyle = "black";
-            this.ctx.font = "16px monospace";
-            this.ctx.fillText(text, 4, 12);
-        } 
+            let text = `${this.game.score}`;
+            this.canvas.ctx.fillStyle = "white";
+            this.canvas.ctx.font = `bold ${this.canvas.RecSize}px monospace`;
+            this.canvas.ctx.fillText(text,
+                                     this.canvas.RecSize/2,
+                                     this.canvas.RecSize);
+        }
     }
 }
+
 function main() {
     const canvas = document.getElementById("canvas");
-    canvas.height = window.innerHeight * 0.75;
-    canvas.width = canvas.height;
     const snake = new Snake(canvas);
-    document.addEventListener("keydown", (e) => {
-        snake.handleKey(e);
-    });
-    setInterval(() => {
-        snake.update();
-        snake.draw();
-    }, 166); // 5 FPS
 }
 
 document.addEventListener("DOMContentLoaded", main);
