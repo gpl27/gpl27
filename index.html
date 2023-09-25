@@ -72,7 +72,11 @@
                 justify-content: space-between;
                 align-items: center;
             }
+            #content {
+                grid-column: 2;
+            }
             #canvas-container {
+                grid-column: 3;
                 height: 100vh;
                 position: fixed;
                 display: flex;
@@ -83,8 +87,7 @@
     </head>
     <body>
         <div class="container">
-            <div></div>
-            <div>
+            <div id="content">
                 <div class="header">
                     <h1>Gustavo Prolla Lacroix</h1>
                     <div>
@@ -119,7 +122,7 @@
                     <p>nao falo espahol kkkk (ainda)</p>
                 </div>
             </div>
-            <div>
+            <div id="game">
                 <div id="canvas-container">
                     <canvas id="canvas" width="320", height="320"></canvas>
                 </div>
