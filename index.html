@@ -4,27 +4,126 @@
         <title>gpl27</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="./snake.js"></script>
+        <script src="./snake.js"> </script>
+        <script>
+            function main() {
+                const canvas = document.getElementById("canvas");
+                const SETTINGS = {
+                    gameHeight: 0.9,
+                    gridRows: 32,
+                    gridCols: 16
+                }
+                const snake = new Snake(canvas, SETTINGS);
+
+                const linkPT = document.getElementById("link-pt");
+                const contentPT = document.getElementById("content-pt")
+                const linkEN = document.getElementById("link-en");
+                const contentEN = document.getElementById("content-en")
+                const linkES = document.getElementById("link-es");
+                const contentES = document.getElementById("content-es")
+
+                linkPT.addEventListener("click", () => {
+                    contentPT.style.display = "block";
+                    contentEN.style.display = "none";
+                    contentES.style.display = "none";
+                    linkPT.style.textDecoration = "none";
+                    linkEN.style.textDecoration = "underline";
+                    linkES.style.textDecoration = "underline";
+                })
+                linkEN.addEventListener("click", () => {
+                    contentPT.style.display = "none";
+                    contentEN.style.display = "block";
+                    contentES.style.display = "none";
+                    linkPT.style.textDecoration = "underline";
+                    linkEN.style.textDecoration = "none";
+                    linkES.style.textDecoration = "underline";
+                })
+                linkES.addEventListener("click", () => {
+                    contentPT.style.display = "none";
+                    contentEN.style.display = "none";
+                    contentES.style.display = "block";
+                    linkPT.style.textDecoration = "underline";
+                    linkEN.style.textDecoration = "underline";
+                    linkES.style.textDecoration = "none";
+                })
+            }
+
+            document.addEventListener("DOMContentLoaded", main);
+        </script>
         <style>
+            body {
+                margin: 0;
+                font-family: "JetBrains Mono", monospace;
+                font-size: 14px;
+            }
+            a {
+                color: black;
+            }
+            img {
+                width: 100%;
+            }
             .container {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 2rem;
+            }
+            .header {
                 display: flex;
-                flex-direction: column;
+                justify-content: space-between;
+                align-items: center;
+            }
+            #canvas-container {
+                height: 100vh;
+                position: fixed;
+                display: flex;
+                justify-content: center;
                 align-items: center;
             }
         </style>
     </head>
-    <body class="container">
-        <div>
-            <img src="./banner.png">
-            <p>Go <a href="https://enem.gpl27.dev">here</a>
-            if your studying for <a href="https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enem">ENEM</a></p>
-            <p>Feel free to play snake game if bored</p>
-        </div>
-        <div>
-            <canvas id="canvas" width="320", height="320"></canvas>
-            <p>Press Space to Start</p>
-            <p>Press Esc to Pause/Unpause</p>
-            <p>Press Space to Play Again</p>
+    <body>
+        <div class="container">
+            <div></div>
+            <div>
+                <div class="header">
+                    <h1>Gustavo Prolla Lacroix</h1>
+                    <div>
+                        <a href="#" id="link-pt" style="text-decoration: none;">
+                            PT</a> |
+                        <a href="#" id="link-en">EN</a> |
+                        <a href="#" id="link-es">ES</a>
+                    </div>
+                </div>
+                <div id="content-pt">
+                    <p>Breve introducao de quem eu sou e o que estou
+                        fazendo agora.
+                    </p>
+                    <p>Explicar como esse site veio a ser</p>
+                    <h2>Projetos</h2>
+                    <p>Inlcuir o site justforfun explicaocao</p>
+                    <ul>
+                        <li>Twot</li>
+                        <li>Algorithms</li>
+                        <li>ENEM</li>
+                        <li>Enough.</li>
+                    </ul>
+                    <h2>Experiência</h2>
+                    <p>Bolsa</p>
+                    <p>Prêmio CAPES Talento Universitário 2022</p>
+                    <img src="./banner.png">
+                </div>
+                <div id="content-en" style="display: none;">
+                    <p>TODO</p>
+                </div>
+                <div id="content-es" style="display: none;">
+                    <p>nao falo espahol kkkk (ainda)</p>
+                </div>
+            </div>
+            <div>
+                <div id="canvas-container">
+                    <canvas id="canvas" width="320", height="320"></canvas>
+                </div>
+            </div>
         </div>
     </body>
 </html>

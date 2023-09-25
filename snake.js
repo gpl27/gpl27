@@ -1,13 +1,23 @@
 /*!
  *  Snake Game
  *  gpl27
+
  * TODO:
- * better graphics
- *  add snake head
- *  better apple drawing
- *  better text
+ *  Add snake head
+ *  Add mobile support
+ *  Save local highscore
+ *  Better text
  *      start/end/pause logo + onscreen instructions
- *  smoother snake movement
+ *  Smoother snake movement
+ * 
+ * NOTES:
+ *  `gameHeight` is a percentage of `window.innerHeight` and the actual
+ *  height of the canvas element will be at most that percentage. This is to
+ *  avoid floating point coordinates to the canvas api. The canvas will be the
+ *  largest height that is a multiple of `gridRows`. I might change this in the
+ *  future and use CSS transforms so that the canvas will always be exactly
+ *  the `gameHeight` specified. I would also try to "pre-render" the snake
+ *  segments and apples instead of drawing them every frame.
  */
 class Snake {
     static DEFAULT_SETTINGS = {
@@ -35,7 +45,7 @@ class Snake {
         this.snake = structuredClone(Snake.DEFAULT_SNAKE);
         this.gridRows = settings.gridRows;
         this.gridCols = settings.gridCols;
-        let vh = (window.innerHeight * settings.gameHeight) / this.gridRows;
+        let vh = (window.innerHeight * settings.gameHeight) / (this.gridRows + 2);
         canvas.height = Math.trunc(vh) * this.gridRows;
         let sqSize = canvas.height / this.gridRows;
         canvas.width = (sqSize) * this.gridCols;
@@ -74,10 +84,13 @@ class Snake {
 
     handleKey(event) {
         if (this.game.state === "START") {
-            if (event.key == ' ') this.game.state = "RUNNING";
+            if (event.code == 'Space') {
+                event.preventDefault();
+                this.game.state = "RUNNING";
+            }
         } else if (this.game.state === "RUNNING") {
             event.preventDefault();
-            switch (event.key) {
+            switch (event.code) {
                 case 'KeyA':
                 case 'ArrowLeft':
                     if (this.snake.prevDir != 'R') this.snake.dir = 'L';
@@ -99,9 +112,10 @@ class Snake {
                     break;
             }
         } else if (this.game.state === "PAUSE") {
-            if (event.key == 'Escape') this.game.state = "RUNNING";
+            if (event.code == 'Escape') this.game.state = "RUNNING";
         } else if (this.game.state === "END") {
-            if (event.key == ' ') {
+            if (event.code == 'Space') {
+                event.preventDefault();
                 this.snake = structuredClone(Snake.DEFAULT_SNAKE);
                 this.game = structuredClone(Snake.DEFAULT_STATE);
             }
@@ -251,10 +265,3 @@ class Snake {
         }
     }
 }
-
-function main() {
-    const canvas = document.getElementById("canvas");
-    const snake = new Snake(canvas);
-}
-
-document.addEventListener("DOMContentLoaded", main);
