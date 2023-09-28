@@ -1,13 +1,22 @@
 /*!
  *  Snake Game
  *  gpl27
+
  * TODO:
- * better graphics
- *  add snake head
- *  better apple drawing
- *  better text
+ *  Add mobile support
+ *  Save local highscore
+ *  Better text
  *      start/end/pause logo + onscreen instructions
- *  smoother snake movement
+ *  Smoother snake movement
+ * 
+ * NOTES:
+ *  `gameHeight` is a percentage of `window.innerHeight` and the actual
+ *  height of the canvas element will be at most that percentage. This is to
+ *  avoid floating point coordinates to the canvas api. The canvas will be the
+ *  largest height that is a multiple of `gridRows`. I might change this in the
+ *  future and use CSS transforms so that the canvas will always be exactly
+ *  the `gameHeight` specified. I would also try to "pre-render" the snake
+ *  segments and apples instead of drawing them every frame.
  */
 class Snake {
     static DEFAULT_SETTINGS = {
@@ -28,6 +37,7 @@ class Snake {
         yPos: [0, 0, 0]
     }
     static snakeColor = "#627bf1";
+    static snakeHeadColor = "#4766FF"
     static appleColor = "#ca5329";
 
     constructor(canvas, settings=Snake.DEFAULT_SETTINGS) {
@@ -35,7 +45,7 @@ class Snake {
         this.snake = structuredClone(Snake.DEFAULT_SNAKE);
         this.gridRows = settings.gridRows;
         this.gridCols = settings.gridCols;
-        let vh = (window.innerHeight * settings.gameHeight) / this.gridRows;
+        let vh = (window.innerHeight * settings.gameHeight) / (this.gridRows + 2);
         canvas.height = Math.trunc(vh) * this.gridRows;
         let sqSize = canvas.height / this.gridRows;
         canvas.width = (sqSize) * this.gridCols;
@@ -69,15 +79,18 @@ class Snake {
         setInterval(() => {
             this.update();
             this.draw();
-        }, 166); // 6 FPS
+        }, 142); // ~7 FPS
     }
 
     handleKey(event) {
         if (this.game.state === "START") {
-            if (event.key == ' ') this.game.state = "RUNNING";
+            if (event.code == 'Space') {
+                event.preventDefault();
+                this.game.state = "RUNNING";
+            }
         } else if (this.game.state === "RUNNING") {
             event.preventDefault();
-            switch (event.key) {
+            switch (event.code) {
                 case 'KeyA':
                 case 'ArrowLeft':
                     if (this.snake.prevDir != 'R') this.snake.dir = 'L';
@@ -99,9 +112,10 @@ class Snake {
                     break;
             }
         } else if (this.game.state === "PAUSE") {
-            if (event.key == 'Escape') this.game.state = "RUNNING";
+            if (event.code == 'Escape') this.game.state = "RUNNING";
         } else if (this.game.state === "END") {
-            if (event.key == ' ') {
+            if (event.code == 'Space') {
+                event.preventDefault();
                 this.snake = structuredClone(Snake.DEFAULT_SNAKE);
                 this.game = structuredClone(Snake.DEFAULT_STATE);
             }
@@ -184,7 +198,7 @@ class Snake {
         this.canvas.ctx.fill();
     }
 
-    drawSegment(x, y) {
+    drawSegment(x, y, color) {
         const cornerRadius = this.canvas.RecSize/4;
         const width = this.canvas.RecSize;
         const height = this.canvas.RecSize;
@@ -210,8 +224,13 @@ class Snake {
                             Math.PI * 0.5,
                             Math.PI);
         this.canvas.ctx.closePath();
-        this.canvas.ctx.fillStyle = Snake.snakeColor;
+        this.canvas.ctx.fillStyle = color;
         this.canvas.ctx.fill();
+    }
+    drawHead() {
+        let x = this.snake.xPos[0] * this.canvas.RecSize;
+        let y = this.snake.yPos[0] * this.canvas.RecSize;
+        this.drawSegment(x, y, Snake.snakeHeadColor);
     }
 
     draw() {
@@ -221,20 +240,34 @@ class Snake {
                                   this.canvas.ctxHeight);
         if (this.game.state === "START") {
             this.drawText("SNAKE GAME", "white");
+            this.canvas.ctx.fillStyle = "white";
+            this.canvas.ctx.font = `${this.canvas.RecSize}px monospace`;
+            let playText = "press space to play";
+            let pauseText = "press esc to pause";
+            let textSize = this.canvas.ctx.measureText(playText);
+            let gapX = (this.canvas.ctxWidth - textSize.width) / 2;
+            let gapY = (this.canvas.ctxHeight / 2) + 2*this.canvas.RecSize;
+            this.canvas.ctx.fillText(playText, gapX, gapY);
+            gapY += this.canvas.RecSize*1.5;
+            textSize = this.canvas.ctx.measureText(pauseText);
+            gapX = (this.canvas.ctxWidth - textSize.width) / 2;
+            this.canvas.ctx.fillText(pauseText, gapX, gapY);
+
         } else if (this.game.state === "RUNNING" ||
                    this.game.state === "PAUSE" ||
                    this.game.state === "END") {
-            // Draw Snake
-            for (let i = 0; i < this.snake.xPos.length; i++) {
-                let x = this.snake.xPos[i] * this.canvas.RecSize;
-                let y = this.snake.yPos[i] * this.canvas.RecSize;
-                this.drawSegment(x, y);
-            }
             // Draw Apples
             for (let i = 0; i < this.game.xApples.length; i++) {
                 let x = this.game.xApples[i] * this.canvas.RecSize;
                 let y = this.game.yApples[i] * this.canvas.RecSize;
                 this.drawApple(x, y);
+            }
+            // Draw Snake
+            this.drawHead();
+            for (let i = 1; i < this.snake.xPos.length; i++) {
+                let x = this.snake.xPos[i] * this.canvas.RecSize;
+                let y = this.snake.yPos[i] * this.canvas.RecSize;
+                this.drawSegment(x, y, Snake.snakeColor);
             }
             if (this.game.state === "PAUSE") {
                 this.drawText("PAUSED", "white");
@@ -251,10 +284,3 @@ class Snake {
         }
     }
 }
-
-function main() {
-    const canvas = document.getElementById("canvas");
-    const snake = new Snake(canvas);
-}
-
-document.addEventListener("DOMContentLoaded", main);
