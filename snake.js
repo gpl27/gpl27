@@ -3,7 +3,6 @@
  *  gpl27
 
  * TODO:
- *  Add snake head
  *  Add mobile support
  *  Save local highscore
  *  Better text
@@ -241,6 +240,19 @@ class Snake {
                                   this.canvas.ctxHeight);
         if (this.game.state === "START") {
             this.drawText("SNAKE GAME", "white");
+            this.canvas.ctx.fillStyle = "white";
+            this.canvas.ctx.font = `${this.canvas.RecSize}px monospace`;
+            let playText = "press space to play";
+            let pauseText = "press esc to pause";
+            let textSize = this.canvas.ctx.measureText(playText);
+            let gapX = (this.canvas.ctxWidth - textSize.width) / 2;
+            let gapY = (this.canvas.ctxHeight / 2) + 2*this.canvas.RecSize;
+            this.canvas.ctx.fillText(playText, gapX, gapY);
+            gapY += this.canvas.RecSize*1.5;
+            textSize = this.canvas.ctx.measureText(pauseText);
+            gapX = (this.canvas.ctxWidth - textSize.width) / 2;
+            this.canvas.ctx.fillText(pauseText, gapX, gapY);
+
         } else if (this.game.state === "RUNNING" ||
                    this.game.state === "PAUSE" ||
                    this.game.state === "END") {
