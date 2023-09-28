@@ -1,132 +1,206 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>gpl27</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="./snake.js"> </script>
-        <script>
-            function main() {
-                const canvas = document.getElementById("canvas");
-                const SETTINGS = {
-                    gameHeight: 0.9,
-                    gridRows: 32,
-                    gridCols: 16
-                }
-                const snake = new Snake(canvas, SETTINGS);
 
-                const linkPT = document.getElementById("link-pt");
-                const contentPT = document.getElementById("content-pt")
-                const linkEN = document.getElementById("link-en");
-                const contentEN = document.getElementById("content-en")
-                const linkES = document.getElementById("link-es");
-                const contentES = document.getElementById("content-es")
+<head>
+    <title>gpl27</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./snake.js"> </script>
+    <script>
+        function main() {
+            const canvas = document.getElementById("canvas");
+            const SETTINGS = {
+                gameHeight: 0.9,
+                gridRows: 32,
+                gridCols: 16
+            }
+            const snake = new Snake(canvas, SETTINGS);
 
-                linkPT.addEventListener("click", () => {
-                    contentPT.style.display = "block";
-                    contentEN.style.display = "none";
-                    contentES.style.display = "none";
-                    linkPT.style.textDecoration = "none";
-                    linkEN.style.textDecoration = "underline";
-                    linkES.style.textDecoration = "underline";
-                })
-                linkEN.addEventListener("click", () => {
-                    contentPT.style.display = "none";
-                    contentEN.style.display = "block";
-                    contentES.style.display = "none";
-                    linkPT.style.textDecoration = "underline";
-                    linkEN.style.textDecoration = "none";
-                    linkES.style.textDecoration = "underline";
-                })
-                linkES.addEventListener("click", () => {
-                    contentPT.style.display = "none";
-                    contentEN.style.display = "none";
-                    contentES.style.display = "block";
-                    linkPT.style.textDecoration = "underline";
-                    linkEN.style.textDecoration = "underline";
-                    linkES.style.textDecoration = "none";
-                })
-            }
+            const linkPT = document.getElementById("link-pt");
+            const contentPT = document.getElementById("content-pt")
+            const linkEN = document.getElementById("link-en");
+            const contentEN = document.getElementById("content-en")
+            const linkES = document.getElementById("link-es");
+            const contentES = document.getElementById("content-es")
 
-            document.addEventListener("DOMContentLoaded", main);
-        </script>
-        <style>
-            body {
-                margin: 0;
-                font-family: "JetBrains Mono", monospace;
-                font-size: 14px;
-            }
-            a {
-                color: black;
-            }
-            img {
-                width: 100%;
-            }
-            .container {
-                display: grid;
-                grid-template-columns: 1fr 1fr 1fr;
-                gap: 2rem;
-            }
-            .header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            #content {
-                grid-column: 2;
-            }
-            #canvas-container {
-                grid-column: 3;
-                height: 100vh;
-                position: fixed;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div id="content">
-                <div class="header">
-                    <h1>Gustavo Prolla Lacroix</h1>
-                    <div>
-                        <a href="#" id="link-pt" style="text-decoration: none;">
-                            PT</a> |
-                        <a href="#" id="link-en">EN</a> |
-                        <a href="#" id="link-es">ES</a>
-                    </div>
-                </div>
-                <div id="content-pt">
-                    <p>Breve introducao de quem eu sou e o que estou
-                        fazendo agora.
-                    </p>
-                    <p>Explicar como esse site veio a ser</p>
-                    <h2>Projetos</h2>
-                    <p>Inlcuir o site justforfun explicaocao</p>
-                    <ul>
-                        <li>Twot</li>
-                        <li>Algorithms</li>
-                        <li>ENEM</li>
-                        <li>Enough.</li>
-                    </ul>
-                    <h2>Experiência</h2>
-                    <p>Bolsa</p>
-                    <p>Prêmio CAPES Talento Universitário 2022</p>
-                    <img src="./banner.png">
-                </div>
-                <div id="content-en" style="display: none;">
-                    <p>TODO</p>
-                </div>
-                <div id="content-es" style="display: none;">
-                    <p>nao falo espahol kkkk (ainda)</p>
+            linkPT.addEventListener("click", () => {
+                contentPT.style.display = "block";
+                contentEN.style.display = "none";
+                contentES.style.display = "none";
+                linkPT.style.textDecoration = "none";
+                linkEN.style.textDecoration = "underline";
+                linkES.style.textDecoration = "underline";
+            })
+            linkEN.addEventListener("click", () => {
+                contentPT.style.display = "none";
+                contentEN.style.display = "block";
+                contentES.style.display = "none";
+                linkPT.style.textDecoration = "underline";
+                linkEN.style.textDecoration = "none";
+                linkES.style.textDecoration = "underline";
+            })
+            linkES.addEventListener("click", () => {
+                contentPT.style.display = "none";
+                contentEN.style.display = "none";
+                contentES.style.display = "block";
+                linkPT.style.textDecoration = "underline";
+                linkEN.style.textDecoration = "underline";
+                linkES.style.textDecoration = "none";
+            })
+        }
+
+        document.addEventListener("DOMContentLoaded", main);
+    </script>
+    <style>
+        body {
+            margin: 0;
+            font-family: "JetBrains Mono", monospace;
+            font-size: 14px;
+        }
+
+        p {
+            line-height: 1.5;
+            text-align: justify;
+        }
+
+        #link-pt,
+        #link-en,
+        #link-es {
+            color: black;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            text-align: justify;
+        }
+
+        img {
+            width: 100%;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 2fr 3fr 2fr;
+            gap: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #content {
+            grid-column: 2;
+        }
+
+        #canvas-container {
+            grid-column: 3;
+            height: 100vh;
+            position: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="content">
+            <div class="header">
+                <h2>gpl27</h2>
+                <div>
+                    <a href="#" id="link-pt" style="text-decoration: none;">
+                        PT</a> |
+                    <a href="#" id="link-en">EN</a> |
+                    <a href="#" id="link-es">ES</a>
                 </div>
             </div>
-            <div id="game">
-                <div id="canvas-container">
-                    <canvas id="canvas" width="320", height="320"></canvas>
-                </div>
+            <div id="content-pt">
+                <p>
+                    Atualmente sou aluno de graduação da Ciência da
+                    Computação na <a href="http://ufrgs.br">UFRGS</a>.
+                </p>
+                <p>
+                    Agora você já deve ter percebido o grande <em>Jogo da
+                    Cobrinha</em> à direita. Ele existe por dois motivos. O
+                    primeiro é que você, como eu e qualquer outra pessoa com
+                    acesso à Internet, provavelmente tem a capacidade de atenção
+                    de um peixe-palhaço, e eu, caso você seja um recrutador, não
+                    quero que você perca o interesse no meu perfil tão rápido
+                    assim. O segundo é que eu comprei esse domínio antes
+                    de realmente ter alguma coisa para colocar aqui 😐. O
+                    intuito era fazer algo como aqueles vídeos do TikTok que colocam
+                    <em>Subway Surfers</em> junto com o conteúdo para
+                    aumentar a retenção.
+                </p>
+                <p>
+                    Com isso em mente, eu lhe convido a jogá-lo antes
+                    de continuar lendo. Uma partida e seu cérebro
+                    receberá uma dose de dopamina para mantê-lo
+                    interessado. (O meu highscore é 20800).
+                </p>
+                <h2>Projetos</h2>
+                <p>
+                    Tudo que eu tenho trabalhado até agora teve
+                    objetivos educacionais ou foi simplesmente <a href="https://justforfunnoreally.dev/">por
+                        diversão</a>
+                </p>
+                <ul>
+                    <li><a href="https://enem.gpl27.dev/">NotaEnem</a>: Ferramenta de estudo para o ENEM.
+                        Corrija provas anteriores, receba uma estimativa
+                        da nota, e encontre questões similares.</li>
+                    <li><a href="https://github.com/gpl27/algorithms">algorithms</a>: Implementação de alguns dos
+                        algortimos e estruturas de dados do livro
+                        <a href="https://en.wikipedia.org/wiki/Introduction_to_Algorithms">Introduction to
+                            Algorithms</a>.
+                    </li>
+                    <li><a href="https://addons.mozilla.org/en-US/firefox/addon/enough/">enough.</a>: Extensão para o
+                        Firefox que elimina
+                        as recomendações do YouTube e monitora quanto tempo
+                        você passa no YouTube.</li>
+                </ul>
+                <h2>Experiência</h2>
+                <p>
+                    Fui bolsista de Iniciação Científica junto ao grupo
+                    <a href="https://github.com/yaaig-ufrgs">yaaig-ufrgs</a> de 09/2022
+                    a 04/2023. Minhas principais responsabilidades
+                    foram: coleta e análise de resultados usando
+                    Python e DownwardLab, aprendizagem dos
+                    fundamentos de planejamento em IA, debugging de
+                    minor features em C++, participação na
+                    <a href="https://ipc2023-classical.github.io/abstracts/planner20_FSM.pdf">International Planning
+                        Competition 2023</a>.
+                </p>
+                <p>
+                    Além disso fui ganhador do
+                    <a href="https://www.gov.br/capes/pt-br/assuntos/premios/premio-capes-talento-universitario">Prêmio
+                        CAPES Talento Universitário 2023</a>.
+                    (Eu anexaria o certificado mas
+                    ele tem o meu CPF 😐)
+                </p>
+                <h2>TODO</h2>
+                <p>
+                    Por vários meses esse site tinha apenas a imagem
+                    abaixo, porém eu acredito que ela ainda reflete bem
+                    a situação atual.
+                </p>
+                <img src="./banner.png">
+            </div>
+            <div id="content-en" style="display: none;">
+                <p>TODO</p>
+            </div>
+            <div id="content-es" style="display: none;">
+                <p>nao falo espahol kkkk (ainda)</p>
             </div>
         </div>
-    </body>
+        <div id="game">
+            <div id="canvas-container">
+                <canvas id="canvas" width="320" , height="320"></canvas>
+            </div>
+        </div>
+    </div>
+</body>
+
 </html>

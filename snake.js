@@ -38,6 +38,7 @@ class Snake {
         yPos: [0, 0, 0]
     }
     static snakeColor = "#627bf1";
+    static snakeHeadColor = "#4766FF"
     static appleColor = "#ca5329";
 
     constructor(canvas, settings=Snake.DEFAULT_SETTINGS) {
@@ -79,7 +80,7 @@ class Snake {
         setInterval(() => {
             this.update();
             this.draw();
-        }, 166); // 6 FPS
+        }, 142); // ~7 FPS
     }
 
     handleKey(event) {
@@ -198,7 +199,7 @@ class Snake {
         this.canvas.ctx.fill();
     }
 
-    drawSegment(x, y) {
+    drawSegment(x, y, color) {
         const cornerRadius = this.canvas.RecSize/4;
         const width = this.canvas.RecSize;
         const height = this.canvas.RecSize;
@@ -224,8 +225,13 @@ class Snake {
                             Math.PI * 0.5,
                             Math.PI);
         this.canvas.ctx.closePath();
-        this.canvas.ctx.fillStyle = Snake.snakeColor;
+        this.canvas.ctx.fillStyle = color;
         this.canvas.ctx.fill();
+    }
+    drawHead() {
+        let x = this.snake.xPos[0] * this.canvas.RecSize;
+        let y = this.snake.yPos[0] * this.canvas.RecSize;
+        this.drawSegment(x, y, Snake.snakeHeadColor);
     }
 
     draw() {
@@ -238,17 +244,18 @@ class Snake {
         } else if (this.game.state === "RUNNING" ||
                    this.game.state === "PAUSE" ||
                    this.game.state === "END") {
-            // Draw Snake
-            for (let i = 0; i < this.snake.xPos.length; i++) {
-                let x = this.snake.xPos[i] * this.canvas.RecSize;
-                let y = this.snake.yPos[i] * this.canvas.RecSize;
-                this.drawSegment(x, y);
-            }
             // Draw Apples
             for (let i = 0; i < this.game.xApples.length; i++) {
                 let x = this.game.xApples[i] * this.canvas.RecSize;
                 let y = this.game.yApples[i] * this.canvas.RecSize;
                 this.drawApple(x, y);
+            }
+            // Draw Snake
+            this.drawHead();
+            for (let i = 1; i < this.snake.xPos.length; i++) {
+                let x = this.snake.xPos[i] * this.canvas.RecSize;
+                let y = this.snake.yPos[i] * this.canvas.RecSize;
+                this.drawSegment(x, y, Snake.snakeColor);
             }
             if (this.game.state === "PAUSE") {
                 this.drawText("PAUSED", "white");
